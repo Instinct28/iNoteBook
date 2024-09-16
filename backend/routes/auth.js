@@ -2,6 +2,7 @@ const {Router} = require('express');
 const user = require('../models/user');
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const fetchUser = require('../middlewares/fetchUser');
 // const { body, validationResult } = require('express-validator');
 
 
@@ -68,5 +69,18 @@ router.post("/login", async(req, res)=>{
     const jwtToken = jwt.sign(body.email, JWT_SECRET);
     res.status(200).json({jwtToken});
 });
+
+//API to get user details and login is required
+router.post('/getUser', fetchUser, async (req, res)=>{
+    try {
+        //Getting email from req
+        const userId = req.user;
+        //Getting user from database
+        const User = await user.find({"email":userId}).select("-password");
+        res.send(User);
+    } catch (error) {
+        res.status(500).send("Internal server error");
+    }
+})
 
 module.exports = router;
