@@ -31,10 +31,10 @@ router.post("/signup", async(req, res)=>{
     const salt = await bcryptjs.genSalt(10);
     //Generating hash
     const secPassword = await bcryptjs.hash(body.password, salt);
-    //Generating token
-    const jwtToken = jwt.sign(body.email, JWT_SECRET);
     //Saving user in database
     User = await user.create({"name" : body.name, "email" : body.email, "password" : secPassword});
+    //Generating token
+    const jwtToken = jwt.sign(User.id, JWT_SECRET);
     res.status(201).json({jwtToken});
 });
 
@@ -66,7 +66,7 @@ router.post("/login", async(req, res)=>{
         return res.status(400).json({"Error" : "Please check your credentials"});
     }
     //Generating JWT token
-    const jwtToken = jwt.sign(body.email, JWT_SECRET);
+    const jwtToken = jwt.sign(User.id, JWT_SECRET);
     res.status(200).json({jwtToken});
 });
 
@@ -76,7 +76,7 @@ router.post('/getUser', fetchUser, async (req, res)=>{
         //Getting email from req
         const userId = req.user;
         //Getting user from database
-        const User = await user.find({"email":userId}).select("-password");
+        const User = await user.findById(userId).select("-password");
         res.send(User);
     } catch (error) {
         res.status(500).send("Internal server error");
