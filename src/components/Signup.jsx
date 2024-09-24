@@ -1,27 +1,52 @@
-import React from 'react'
+import React, { useState } from 'react';
+import {useNavigate} from 'react-router-dom';
 
 const Signup = () => {
+
+  const [credentials, setCredentials] = useState({name : "", email : "", password : ""});
+  const navigate = useNavigate();
+
+  const onChange = (e)=>{
+    setCredentials({...credentials, [e.target.name] : e.target.value});
+  }
+
+  const handleSubmit = async (e)=>{
+    e.preventDefault();
+    const response = await fetch('http://localhost:8000/api/auth/signup',{
+      method:'POST',
+      headers:{
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({name : credentials.name, email : credentials.email, password : credentials.password})
+    });
+    const json = await response.json();
+    if(json.success){
+      localStorage.setItem('token',json.jwtToken);
+      navigate('/');
+    }
+    else{
+      alert("Invalid Credentials");
+    }
+  }
+
   return (
     <div>
-      <form>
-        <div class="mb-3">
-          <label for="name" class="form-label">Full Name</label>
-          <input type="text" class="form-control" id="name" name='name' aria-describedby="emailHelp"/>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label htmlFor="name" className="form-label">Full Name</label>
+          <input type="text" className="form-control" id="name" name='name' value={credentials.name} aria-describedby="emailHelp" onChange={onChange}/>
         </div>
-        <div class="mb-3">
-          <label for="email" class="form-label">Email address</label>
-          <input type="email" class="form-control" id="email" name='email' aria-describedby="emailHelp"/>
-          <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label">Email address</label>
+          <input type="email" className="form-control" id="email" name='email' value={credentials.email} aria-describedby="emailHelp" onChange={onChange}/>
+          <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
         </div>
-        <div class="mb-3">
-          <label for="exampleInputPassword1" class="form-label">Password</label>
-          <input type="password" class="form-control" id="exampleInputPassword1"/>
+        <div className="mb-3">
+          <label htmlFor="password" className="form-label">Password</label>
+          <input type="password" className="form-control" value={credentials.password} onChange={onChange} name='password' id="password"/>
         </div>
-        <div class="mb-3 form-check">
-          <input type="checkbox" class="form-check-input" id="exampleCheck1"/>
-          <label class="form-check-label" for="exampleCheck1">Check me out</label>
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" className="btn btn-primary">Submit</button>
       </form>
     </div>
   )

@@ -26,7 +26,7 @@ router.post("/signup", async(req, res)=>{
     //Finding user weather user already exists or not
     let User = await user.find({"email" : body.email});
     if(User.length !== 0){
-        return res.status(400).json({success : success, "Error" : "User already exits with thi email"});
+        return res.status(400).json({success : success, "Error" : "User already exits with this email"});
     }
     //Generating Salt
     const salt = await bcryptjs.genSalt(10);
